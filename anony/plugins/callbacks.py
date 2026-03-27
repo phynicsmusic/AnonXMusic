@@ -128,11 +128,25 @@ async def _controls(_, query: types.CallbackQuery):
 async def _help(_, query: types.CallbackQuery):
     data = query.data.split()
     if len(data) == 1:
-        return await query.answer(url=f"https://t.me/{app.username}?start=help")
+        if query.message.photo:
+            return await query.message.edit_caption(
+                caption=query.lang["help_menu"],
+                reply_markup=buttons.help_markup(query.lang),
+            )
+        return await query.edit_message_text(
+            text=query.lang["help_menu"],
+            reply_markup=buttons.help_markup(query.lang),
+        )
 
     if data[1] == "back":
+        if query.message.photo:
+            return await query.message.edit_caption(
+                caption=query.lang["help_menu"],
+                reply_markup=buttons.help_markup(query.lang),
+            )
         return await query.edit_message_text(
-            text=query.lang["help_menu"], reply_markup=buttons.help_markup(query.lang)
+            text=query.lang["help_menu"],
+            reply_markup=buttons.help_markup(query.lang),
         )
     elif data[1] == "close":
         try:
@@ -141,11 +155,15 @@ async def _help(_, query: types.CallbackQuery):
         except Exception:
             return
 
+    if query.message.photo:
+        return await query.message.edit_caption(
+            caption=query.lang[f"help_{data[1]}"],
+            reply_markup=buttons.help_markup(query.lang, True),
+        )
     await query.edit_message_text(
         text=query.lang[f"help_{data[1]}"],
         reply_markup=buttons.help_markup(query.lang, True),
     )
-
 
 @app.on_callback_query(filters.regex("settings") & ~app.bl_users)
 @lang.language()
