@@ -9,12 +9,21 @@ from anony import app, config, db, lang
 from anony.helpers import buttons, utils
 
 
+def _start_text(_lang: dict, first_name: str, private: bool) -> str:
+    return (
+        _lang["start_pm"].format(first_name, app.name)
+        if private
+        else _lang["start_gp"].format(app.name)
+    )
+
+
 @app.on_message(filters.command(["help"]) & filters.private & ~app.bl_users)
 @lang.language()
 async def _help(_, m: types.Message):
-    await m.reply_text(
-        text=m.lang["help_menu"],
-        reply_markup=buttons.help_markup(m.lang),
+    await m.reply_photo(
+        photo=config.START_IMG,
+        caption=m.lang["help_menu"],
+        reply_markup=buttons.help_markup(m.lang, back=True),
         quote=True,
     )
 
@@ -25,21 +34,13 @@ async def start(_, message: types.Message):
     if message.from_user.id in app.bl_users and message.from_user.id not in db.notified:
         return await message.reply_text(message.lang["bl_user_notify"])
 
-    if len(message.command) > 1 and message.command[1] == "help":
-        return await _help(_, message)
-
     private = message.chat.type == enums.ChatType.PRIVATE
-    _text = (
-        message.lang["start_pm"].format(message.from_user.first_name, app.name)
-        if private
-        else message.lang["start_gp"].format(app.name)
-    )
+    _text = _start_text(message.lang, message.from_user.first_name, private)
 
-    key = buttons.start_key(message.lang, private)
     await message.reply_photo(
         photo=config.START_IMG,
         caption=_text,
-        reply_markup=key,
+        reply_markup=buttons.start_key(message.lang, private),
         quote=not private,
     )
 
@@ -53,6 +54,33 @@ async def start(_, message: types.Message):
             return
         await utils.send_log(message, True)
         await db.add_chat(message.chat.id)
+
+
+@app.on_callback_query(filters.regex("^nav_help$") & ~app.bl_users)
+async def nav_help(_, cq: types.CallbackQuery):
+    _lang = await lang.get_lang(cq.from_user.id)
+    try:
+        await cq.message.edit_caption(
+            caption=_lang["help_menu"],
+            reply_markup=buttons.help_markup(_lang, back=True),
+        )
+    except Exception:
+        pass
+    await cq.answer()
+
+
+@app.on_callback_query(filters.regex("^nav_start$") & ~app.bl_users)
+async def nav_start(_, cq: types.CallbackQuery):
+    _lang = await lang.get_lang(cq.from_user.id)
+    text = _start_text(_lang, cq.from_user.first_name, True)
+    try:
+        await cq.message.edit_caption(
+            caption=text,
+            reply_markup=buttons.start_key(_lang, True),
+        )
+    except Exception:
+        pass
+    await cq.answer()
 
 
 @app.on_message(filters.command(["playmode", "settings"]) & filters.group & ~app.bl_users)
