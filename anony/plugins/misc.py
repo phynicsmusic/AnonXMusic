@@ -2,12 +2,10 @@
 # Licensed under the MIT License.
 # This file is part of AnonXMusic
 
-
 import time
 import asyncio
 
 from pyrogram import enums, errors, filters, types
-
 from anony import anon, app, config, db, lang, queue, tasks, userbot, yt
 from anony.helpers import buttons
 
@@ -28,7 +26,7 @@ async def auto_leave():
                                 enums.ChatType.GROUP, enums.ChatType.SUPERGROUP,
                             ]][-20:]
                 for chat in chats:
-                    if chat in [app.logger, -1001686672798, -1001549206010]:
+                    if chat == app.logger:
                         continue
                     if chat in db.active_calls:
                         continue
@@ -52,7 +50,7 @@ async def track_time():
             media.time += 1
 
 
-async def update_timer(length=10):
+async def update_timer(length=8):
     while True:
         await asyncio.sleep(7)
         for chat_id in list(db.active_calls):
@@ -66,7 +64,7 @@ async def update_timer(length=10):
                 played = media.time
                 remaining = duration - played
                 pos = min(int((played / duration) * length), length - 1)
-                timer = "—" * pos + "◉" + "—" * (length - pos - 1)
+                timer = "━" * pos + "⬤" + "-" * (length - pos - 1)
 
                 if remaining <= 30:
                     next = queue.get_next(chat_id, check=True)
