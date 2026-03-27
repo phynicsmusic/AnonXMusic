@@ -33,6 +33,9 @@ async def start(_, message: types.Message):
     if message.from_user.id in app.bl_users and message.from_user.id not in db.notified:
         return await message.reply_text(message.lang["bl_user_notify"])
 
+    if len(message.command) > 1 and message.command[1] == "help":
+        return await _help(_, message)
+
     private = message.chat.type == enums.ChatType.PRIVATE
     _text = _start_text(message.lang, message.from_user.first_name, private)
 
@@ -56,42 +59,29 @@ async def start(_, message: types.Message):
 
 
 @app.on_callback_query(filters.regex("^nav_help$") & ~app.bl_users)
-async def nav_help(_, cq: types.CallbackQuery):
-    _lang = await lang.get_lang(cq.from_user.id)
+async def nav_help(_, query: types.CallbackQuery):
+    _lang = await lang.get_lang(query.from_user.id)
     try:
-        if cq.message.photo:
-            await cq.message.edit_caption(
-                caption=_lang["help_menu"],
-                reply_markup=buttons.help_markup(_lang, back=True),
-            )
-        else:
-            await cq.message.edit_text(
-                text=_lang["help_menu"],
-                reply_markup=buttons.help_markup(_lang, back=True),
-            )
+        await query.message.edit_caption(
+            caption=_lang["help_menu"],
+            reply_markup=buttons.help_markup(_lang, back=True),
+        )
     except Exception:
         pass
-    await cq.answer()
+    await query.answer()
 
 
 @app.on_callback_query(filters.regex("^nav_start$") & ~app.bl_users)
-async def nav_start(_, cq: types.CallbackQuery):
-    _lang = await lang.get_lang(cq.from_user.id)
-    text = _start_text(_lang, cq.from_user.first_name, True)
+async def nav_start(_, query: types.CallbackQuery):
+    _lang = await lang.get_lang(query.from_user.id)
     try:
-        if cq.message.photo:
-            await cq.message.edit_caption(
-                caption=text,
-                reply_markup=buttons.start_key(_lang, True),
-            )
-        else:
-            await cq.message.edit_text(
-                text=text,
-                reply_markup=buttons.start_key(_lang, True),
-            )
+        await query.message.edit_caption(
+            caption=_start_text(_lang, query.from_user.first_name, True),
+            reply_markup=buttons.start_key(_lang, True),
+        )
     except Exception:
         pass
-    await cq.answer()
+    await query.answer()
 
 
 @app.on_message(filters.command(["playmode", "settings"]) & filters.group & ~app.bl_users)
