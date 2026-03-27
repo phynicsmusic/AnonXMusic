@@ -2,7 +2,6 @@
 # Licensed under the MIT License.
 # This file is part of AnonXMusic
 
-
 from pathlib import Path
 
 from pyrogram import filters, types
@@ -19,6 +18,7 @@ def playlist_to_queue(chat_id: int, tracks: list) -> str:
         text += f"<b>{pos}.</b> {track.title}\n"
     text = text[:1948] + "</blockquote>"
     return text
+
 
 @app.on_message(
     filters.command(["play", "playforce", "vplay", "vplayforce"])
@@ -40,6 +40,7 @@ async def play_hndlr(
     mention = m.from_user.mention
     media = tg.get_media(m.reply_to_message) if m.reply_to_message else None
     tracks = []
+    is_playlist = False
 
     if media:
         setattr(sent, "lang", m.lang)
@@ -50,16 +51,14 @@ async def play_hndlr(
 
     elif url:
         if "playlist" in url:
+            is_playlist = True
             await sent.edit_text(m.lang["playlist_fetch"])
-            tracks = await yt.playlist(
-                config.PLAYLIST_LIMIT, mention, url, video
-            )
+            tracks = await yt.playlist(config.PLAYLIST_LIMIT, mention, url, video)
 
             if not tracks:
                 return await sent.edit_text(m.lang["playlist_error"])
 
-            file = tracks[0]
-            tracks.remove(file)
+            file = tracks.pop(0)
             file.message_id = sent.id
         else:
             file = await yt.search(url, sent.id, video=video)
@@ -116,16 +115,33 @@ async def play_hndlr(
             return
 
     if not file.file_path:
-        fname = f"downloads/{file.id}.{'mp4' if video else 'webm'}"
-        if Path(fname).exists():
-            file.file_path = fname
+        cached = next(
+            (
+                f"downloads/{file.id}.{ext}"
+                for ext in ("mp4", "webm", "mp3", "m4a")
+                if Path(f"downloads/{file.id}.{ext}").exists()
+            ),
+            None,
+        )
+        if cached:
+            file.file_path = cached
         else:
             await sent.edit_text(m.lang["play_downloading"])
             file.file_path = await yt.download(file.id, video=video)
 
-    await anon.play_media(chat_id=m.chat.id, message=sent, media=file)
+    try:
+        await anon.play_media(chat_id=m.chat.id, message=sent, media=file)
+    except Exception:
+        if is_playlist and tracks and not force:
+            try:
+                queue.remove(m.chat.id, file)
+            except Exception:
+                pass
+        raise
+
     if not tracks:
         return
+
     added = playlist_to_queue(m.chat.id, tracks)
     await app.send_message(
         chat_id=m.chat.id,
