@@ -44,8 +44,8 @@ class Inline:
     def help_markup(self, _lang: dict, back: bool = False) -> types.InlineKeyboardMarkup:
         if back:
             rows = [[
-                self.ikb(text=f"⬅️ {_lang['back']}", callback_data="nav_start"),
-                self.ikb(text=f"✖️ {_lang['close']}", callback_data="help close", style=ButtonStyle.DANGER),
+                self.ikb(text=f"⬅️", callback_data="nav_start"),
+                self.ikb(text=f"✖️", callback_data="help close", style=ButtonStyle.DANGER),
             ]]
         else:
             cbs = ["admins", "auth", "blist", "lang", "ping", "play", "queue", "stats", "sudo"]
