@@ -20,10 +20,9 @@ def _start_text(_lang: dict, first_name: str, private: bool) -> str:
 @app.on_message(filters.command(["help"]) & filters.private & ~app.bl_users)
 @lang.language()
 async def _help(_, m: types.Message):
-    await m.reply_photo(
-        photo=config.START_IMG,
-        caption=m.lang["help_menu"],
-        reply_markup=buttons.help_markup(m.lang, back=True),
+    await m.reply_text(
+        text=m.lang["help_menu"],
+        reply_markup=buttons.help_markup(m.lang),
         quote=True,
     )
 
@@ -60,10 +59,16 @@ async def start(_, message: types.Message):
 async def nav_help(_, cq: types.CallbackQuery):
     _lang = await lang.get_lang(cq.from_user.id)
     try:
-        await cq.message.edit_caption(
-            caption=_lang["help_menu"],
-            reply_markup=buttons.help_markup(_lang, back=True),
-        )
+        if cq.message.photo:
+            await cq.message.edit_caption(
+                caption=_lang["help_menu"],
+                reply_markup=buttons.help_markup(_lang, back=True),
+            )
+        else:
+            await cq.message.edit_text(
+                text=_lang["help_menu"],
+                reply_markup=buttons.help_markup(_lang, back=True),
+            )
     except Exception:
         pass
     await cq.answer()
@@ -74,10 +79,16 @@ async def nav_start(_, cq: types.CallbackQuery):
     _lang = await lang.get_lang(cq.from_user.id)
     text = _start_text(_lang, cq.from_user.first_name, True)
     try:
-        await cq.message.edit_caption(
-            caption=text,
-            reply_markup=buttons.start_key(_lang, True),
-        )
+        if cq.message.photo:
+            await cq.message.edit_caption(
+                caption=text,
+                reply_markup=buttons.start_key(_lang, True),
+            )
+        else:
+            await cq.message.edit_text(
+                text=text,
+                reply_markup=buttons.start_key(_lang, True),
+            )
     except Exception:
         pass
     await cq.answer()
