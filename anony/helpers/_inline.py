@@ -44,8 +44,8 @@ class Inline:
     def help_markup(self, _lang: dict, back: bool = False) -> types.InlineKeyboardMarkup:
         if back:
             rows = [[
-                self.ikb(text=f"⬅️", callback_data="help back"),
-                self.ikb(text=f"✖️", callback_data="help close", style=ButtonStyle.DANGER),
+                self.ikb(text=f"{_lang['back']}", callback_data="help back"),
+                self.ikb(text=f"{_lang['close']}", callback_data="help close", style=ButtonStyle.DANGER),
             ]]
         else:
             cbs = ["admins", "auth", "blist", "lang", "ping", "play", "queue", "stats", "sudo"]
@@ -67,7 +67,7 @@ class Inline:
         return self.ikm(rows)
 
     def ping_markup(self, text: str) -> types.InlineKeyboardMarkup:
-        return self.ikm([[self.ikb(text=text, url=config.SUPPORT_CHAT)]])
+        return self.ikm([[self.ikb(text=text, url=config.SUPPORT_CHAT, style=ButtonStyle.SUCCESS)]])
 
     def play_queued(self, chat_id: int, item_id: str, _text: str) -> types.InlineKeyboardMarkup:
         return self.ikm([[self.ikb(text=_text, callback_data=f"controls force {chat_id} {item_id}", style=ButtonStyle.PRIMARY)]])
