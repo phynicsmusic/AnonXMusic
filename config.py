@@ -37,8 +37,8 @@ class Config:
         self.RAW_COOKIES = getenv("RAW_COOKIES", None)
 
         self.COOKIES_URL = [
-            url.strip() for url in getenv("COOKIES_URL", "").split(" ")
-            if url.strip()
+            url for url in getenv("COOKIES_URL", "").split(" ")
+            if url and " " in url
         ]
 
        
