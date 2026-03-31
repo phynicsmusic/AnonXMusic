@@ -34,6 +34,7 @@ class Config:
         self.VIDEO_PLAY: bool = getenv("VIDEO_PLAY", "True").lower() == "true"
 
         self.LANG_CODE = getenv("LANG_CODE", "en")
+        self.RAW_COOKIES = getenv("RAW_COOKIES", None)
 
         self.COOKIES_URL = [
             url for url in getenv("COOKIES_URL", "").split(" ")
