@@ -37,9 +37,10 @@ class Config:
         self.RAW_COOKIES = getenv("RAW_COOKIES", None)
 
         self.COOKIES_URL = [
-            url for url in getenv("COOKIES_URL", "").split(" ")
-            if url and "batbin.me" in url
+            url.strip() for url in getenv("COOKIES_URL", "").split(" ")
+            if url.strip()
         ]
+
        
         self.DEFAULT_THUMB = getenv("DEFAULT_THUMB", "https://files.catbox.moe/a3i0pm.jpg")
         self.PING_IMG = getenv("PING_IMG", "https://files.catbox.moe/ffsk8y.jpg")
