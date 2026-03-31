@@ -24,8 +24,8 @@ class Config:
         self.SESSION3 = getenv("SESSION3", None)
 
 
-        self.SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/Apexservers")
-        self.SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/Apexdiscusion")
+        self.SUPPORT_CHANNEL = getenv("SUPPORT_CHANNEL", "https://t.me/myanmarbot_music")
+        self.SUPPORT_CHAT = getenv("SUPPORT_CHAT", "https://t.me/myanmar_music_Bot2027")
         
         self.AUTO_LEAVE: bool = getenv("AUTO_LEAVE", "False").lower() == "true"
         self.AUTO_END: bool = getenv("AUTO_END", "False").lower() == "true"
@@ -37,12 +37,12 @@ class Config:
 
         self.COOKIES_URL = [
             url for url in getenv("COOKIES_URL", "").split(" ")
-            if url and "batbin.me" in url
+            if url and "google.com" in url
         ]
        
         self.DEFAULT_THUMB = getenv("DEFAULT_THUMB", "https://files.catbox.moe/a3i0pm.jpg")
-        self.PING_IMG = getenv("PING_IMG", "https://files.catbox.moe/l626px.jpg")
-        self.START_IMG = getenv("START_IMG", "https://files.catbox.moe/nqajlk.jpg")
+        self.PING_IMG = getenv("PING_IMG", "https://files.catbox.moe/ffsk8y.jpg")
+        self.START_IMG = getenv("START_IMG", "https://files.catbox.moe/ffsk8y.jpg")
         
     def check(self):
         missing = [
