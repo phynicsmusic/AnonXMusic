@@ -37,7 +37,7 @@ class Config:
 
         self.COOKIES_URL = [
             url for url in getenv("COOKIES_URL", "").split(" ")
-            if url 
+            if url and "batbin.me" if url
         ]
        
         self.DEFAULT_THUMB = getenv("DEFAULT_THUMB", "https://files.catbox.moe/a3i0pm.jpg")
